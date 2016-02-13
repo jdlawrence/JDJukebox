@@ -9,5 +9,10 @@
   "moduleType": [],
   "license": "MIT",
   "private": true,
-
+  "dependencies": {
+    "jquery": "~2.2.0",
+    "underscore": "~1.8.3",
+    "bootstrap": "~3.3.6",
+    "react": "~0.13.3"
+  }
 }
