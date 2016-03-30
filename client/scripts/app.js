@@ -10,7 +10,7 @@ var Welcome = React.createClass({
       <div>
       <h1 className="welcomeTitle">Welcome to JDJukebox!!</h1>
       </div>
-      );
+    );
   }
 
 });
@@ -20,19 +20,19 @@ var GetPlaylists = React.createClass({
     return {username: ''};
   },
   handleChange: function(event) {
-    // Sets the 
     this.setState({username: event.target.value});
+    console.log('*********** username', this.state.username);
   },
   onSubmit: function(e) {
     var that = this;
     e.preventDefault();
     var playlistsArray = [];
-      // When the user is inputted, a call the soundcloud '/resolve' endpoint that returns 
-      // a user object
-      SC.get('/resolve/?url=https://soundcloud.com/' + this.state.username, {
-        limit: 1
-      }, (function (result) {
-
+    // When the user is inputted, a call the soundcloud '/resolve' endpoint that returns 
+    // a user object
+    SC.get('/resolve/?url=https://soundcloud.com/' + this.state.username, {
+      limit: 1
+    }, (function (result) {
+      console.log('((((((((((', result.id);
       // take the user id and look up the playlists associated with that user
       SC.get('/users/' + result.id + '/playlists', {
         limit: 100
@@ -50,23 +50,23 @@ var GetPlaylists = React.createClass({
 
     }).bind(this));
 
-    },
-    render: function() {
-      return (
-        <div className="MyForm" className="form-group">
-        <form onSubmit={this.onSubmit} className="form-group"> 
-        <input placeholder="Please enter a SoundCloud username" 
-               type="text" 
-               value={this.state.username} 
-               onChange={this.handleChange}
-               className="form-control" />
-        <button className="btn btn-default" type="submit">Submit</button>
-        </form> 
-        </div>
-        );
-    }
+  },
+  render: function() {
+    return (
+      <div className="MyForm" className="form-group">
+      <form onSubmit={this.onSubmit} className="form-group"> 
+      <input placeholder="Please enter a SoundCloud username" 
+      type="text" 
+      value={this.state.username} 
+      onChange={this.handleChange}
+      className="form-control" />
+      <button className="btn btn-default" type="submit">Submit</button>
+      </form> 
+      </div>
+    );
+  }
 
-  });
+});
 
 var PlayerView = React.createClass({
   componentDidMount: function () {
@@ -84,7 +84,7 @@ var PlayerView = React.createClass({
     return (
       <div id='songID'>
       </div>
-      )
+    )
   }
 });
 
@@ -94,21 +94,21 @@ var PlaylistView = React.createClass({
   },
 
   render: function(){
-      // Iterate through all playlists and display each with the permalink(track title)
-      return (
-        <div className="col-md-6" >
-        <h1>Playlists</h1>
-        {this.props.playlists.map(function(playlist, i) {
-          return (
-            <div onClick={this.handleClick.bind(this, i)} key={i}>
-            {playlist.permalink}
-            </div>
-            );
-        }, this)}
-        </div>
-        )
-    }
-  });
+    // Iterate through all playlists and display each with the permalink(track title)
+    return (
+      <div className="col-md-6" >
+      <h1>Playlists</h1>
+      {this.props.playlists.map(function(playlist, i) {
+        return (
+          <div onClick={this.handleClick.bind(this, i)} key={i}>
+          {playlist.permalink}
+          </div>
+        );
+      }, this)}
+      </div>
+    )
+  }
+});
 
 var TracksView = React.createClass({
   handleClick: function(i) {
@@ -123,11 +123,12 @@ var TracksView = React.createClass({
         return (
           <div onClick={this.handleClick.bind(this, i)} key={i} >
           {track.permalink}
+          {console.log('&&&&&&&&&&&&', track.artwork_url)}
           </div>
-          );
+        );
       }, this)}
       </div>
-      )
+    )
   }
 });
 
@@ -151,23 +152,23 @@ var App = React.createClass({
   render: function() {
     return (
       <div>
-        <Welcome />
-        <div className="container text-center">
-          <GetPlaylists updatePlaylist={this.updatePlaylist}/>
-        </div>
-        <div className="container text-center">
-          <PlayerView playATrack={this.playATrack}/>
-        </div>
-        <div className="row container text-center">
-          <PlaylistView playlists={this.state.playlists} getTracks={this.getTracks}/>
-          <TracksView tracks={this.state.tracks} playATrack={this.playATrack}/>
-        </div>
+      <Welcome />
+      <div className="container text-center">
+      <GetPlaylists updatePlaylist={this.updatePlaylist}/>
       </div>
-      )
+      <div className="container text-center">
+      <PlayerView playATrack={this.playATrack}/>
+      </div>
+      <div className="row container text-center">
+      <PlaylistView playlists={this.state.playlists} getTracks={this.getTracks}/>
+      <TracksView tracks={this.state.tracks} playATrack={this.playATrack}/>
+      </div>
+      </div>
+    )
   }
 });
 
-React.render(
+ReactDOM.render(
   <App />,
   document.getElementById('content')
-  );
+);
