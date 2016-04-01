@@ -15,6 +15,79 @@ var Welcome = React.createClass({
 
 });
 
+var FindUser = React.createClass({
+  getInitialState: function() {
+    return {username: ''};
+  },
+  handleChange: function(event) {
+    this.setState({username: event.target.value});
+
+  },
+  onSubmit: function(e) {
+    var that = this;
+    e.preventDefault();
+    var users = [];
+    // When the user is inputted, a call the soundcloud '/resolve' endpoint that returns 
+    // a user object
+    SC.get('/users', {q: this.state.username}, (function (users) {
+      this.props.getUsers(users);
+      // iterate over users, do the matching
+      // hit the users api link, get tracks and stream them via their IDs     
+    }).bind(this));
+    
+  },
+  render: function() {
+    return (
+      <div className="MyForm" className="form-group">
+      <form onSubmit={this.onSubmit} className="form-group"> 
+      <input placeholder="Please enter a SoundCloud username" 
+      type="text" 
+      value={this.state.username}
+      onChange={this.handleChange}
+      className="form-control" />
+      <button className="btn btn-default" type="submit">Submit</button>
+      </form> 
+      </div>
+      );
+  }
+})
+
+var UsersView = React.createClass({
+  handleClick: function(i) {
+    // this.props.updatePlaylists(this.props.users[i].tracks)
+    var playlistsArray = [];
+    SC.get('/users/' + this.props.users[i].id + '/playlists', {
+        limit: 100
+      }, 
+
+    (function (playlists) {
+      for (var i = 0; i < playlists.length; i++) {
+        playlistsArray.push(playlists[i]);
+      }
+
+      // When called, this function updates the list of playlists
+      this.props.updatePlaylist(playlistsArray);
+
+    }).bind(this));
+  },
+
+  render: function(){
+    // Iterate through all playlists and display each with the permalink(track title)
+    return (
+      <div className="col-md-12" >
+      <h1>Users</h1>
+      {this.props.users.map(function(user, i) {
+        return (
+          <div onClick={this.handleClick.bind(this, i)} key={i}>
+          {user.username} <img onClick={this.handleClick.bind(this, i)} src={user.avatar_url}/>
+          </div>
+          );
+      }, this)}
+      </div>
+      )
+  }
+});
+
 var GetPlaylists = React.createClass({
   getInitialState: function() {
     return {username: ''};
@@ -30,11 +103,6 @@ var GetPlaylists = React.createClass({
     var playlistsArray = [];
     // When the user is inputted, a call the soundcloud '/resolve' endpoint that returns 
     // a user object
-    SC.get('/users', {q: 'jamil'}, function (users) {
-      console.log('######', users);
-      // iterate over users, do the matching
-      // hit the users api link, get tracks and stream them via their IDs     
-    });
     SC.get('/resolve/?url=https://soundcloud.com/' + this.state.username, {
       limit: 1
     }, (function (result) {
@@ -140,13 +208,17 @@ var TracksView = React.createClass({
 
 var App = React.createClass({
   getInitialState: function() {
-    return {playlists: [], tracks: []};
+    return {playlists: [], tracks: [], users: []};
   },
   updatePlaylist: function(playlists){
     this.setState({playlists: playlists});
   },
   getTracks: function(tracks) {
     this.setState({tracks: tracks});
+  },
+  getUsers: function(users) {
+    console.log('users are', users);
+    this.setState({users: users})
   },
   playATrack: function(track) {
     SC.oEmbed(track.uri, { 
@@ -160,10 +232,13 @@ var App = React.createClass({
       <div>
         <Welcome />
         <div className="container text-center">
-          <GetPlaylists updatePlaylist={this.updatePlaylist}/>
+          <PlayerView playATrack={this.playATrack}/>
         </div>
         <div className="container text-center">
-          <PlayerView playATrack={this.playATrack}/>
+          <FindUser getUsers={this.getUsers}/>
+        </div>
+        <div className="container text-center">
+          <UsersView users={this.state.users} updatePlaylist={this.updatePlaylist}/>
         </div>
         <div className="row container text-center">
           <PlaylistView playlists={this.state.playlists} getTracks={this.getTracks}/>
