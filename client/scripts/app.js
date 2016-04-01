@@ -10,7 +10,7 @@ var Welcome = React.createClass({
       <div>
       <h1 className="welcomeTitle">Welcome to JDJukebox!!</h1>
       </div>
-    );
+      );
   }
 
 });
@@ -21,7 +21,8 @@ var GetPlaylists = React.createClass({
   },
   handleChange: function(event) {
     this.setState({username: event.target.value});
-    console.log('*********** username', this.state.username);
+    console.log('this.state.username', this.state.username); 
+
   },
   onSubmit: function(e) {
     var that = this;
@@ -29,11 +30,16 @@ var GetPlaylists = React.createClass({
     var playlistsArray = [];
     // When the user is inputted, a call the soundcloud '/resolve' endpoint that returns 
     // a user object
+    SC.get('/users', {q: 'jamil'}, function (users) {
+      console.log('######', users);
+      // iterate over users, do the matching
+      // hit the users api link, get tracks and stream them via their IDs     
+    });
     SC.get('/resolve/?url=https://soundcloud.com/' + this.state.username, {
       limit: 1
     }, (function (result) {
-      console.log('((((((((((', result.id);
       // take the user id and look up the playlists associated with that user
+      console.log('result is:', result);
       SC.get('/users/' + result.id + '/playlists', {
         limit: 100
       }, 
@@ -57,13 +63,13 @@ var GetPlaylists = React.createClass({
       <form onSubmit={this.onSubmit} className="form-group"> 
       <input placeholder="Please enter a SoundCloud username" 
       type="text" 
-      value={this.state.username} 
+      value={this.state.username}
       onChange={this.handleChange}
       className="form-control" />
       <button className="btn btn-default" type="submit">Submit</button>
       </form> 
       </div>
-    );
+      );
   }
 
 });
@@ -84,7 +90,7 @@ var PlayerView = React.createClass({
     return (
       <div id='songID'>
       </div>
-    )
+      )
   }
 });
 
@@ -103,10 +109,10 @@ var PlaylistView = React.createClass({
           <div onClick={this.handleClick.bind(this, i)} key={i}>
           {playlist.permalink}
           </div>
-        );
+          );
       }, this)}
       </div>
-    )
+      )
   }
 });
 
@@ -125,10 +131,10 @@ var TracksView = React.createClass({
           {track.permalink}
           {console.log('&&&&&&&&&&&&', track.artwork_url)}
           </div>
-        );
+          );
       }, this)}
       </div>
-    )
+      )
   }
 });
 
@@ -152,23 +158,23 @@ var App = React.createClass({
   render: function() {
     return (
       <div>
-      <Welcome />
-      <div className="container text-center">
-      <GetPlaylists updatePlaylist={this.updatePlaylist}/>
+        <Welcome />
+        <div className="container text-center">
+          <GetPlaylists updatePlaylist={this.updatePlaylist}/>
+        </div>
+        <div className="container text-center">
+          <PlayerView playATrack={this.playATrack}/>
+        </div>
+        <div className="row container text-center">
+          <PlaylistView playlists={this.state.playlists} getTracks={this.getTracks}/>
+          <TracksView tracks={this.state.tracks} playATrack={this.playATrack}/>
+        </div>
       </div>
-      <div className="container text-center">
-      <PlayerView playATrack={this.playATrack}/>
-      </div>
-      <div className="row container text-center">
-      <PlaylistView playlists={this.state.playlists} getTracks={this.getTracks}/>
-      <TracksView tracks={this.state.tracks} playATrack={this.playATrack}/>
-      </div>
-      </div>
-    )
+      )
   }
 });
 
 ReactDOM.render(
   <App />,
   document.getElementById('content')
-);
+  );
